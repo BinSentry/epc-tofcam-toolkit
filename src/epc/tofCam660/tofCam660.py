@@ -335,6 +335,10 @@ class TOFcam660(TOFcam):
         self.settings.set_integration_hdr([25, 40, 400, 2000])
         self.settings.set_minimal_amplitude(100)
         self.settings.disable_filters()
+        self.settings.set_compensations(setDrnuCompensation=True,
+                                        setTemperatureCompensation=True,
+                                        setAmbientLightCompensation=True,
+                                        setGrayscaleCompensation=True)
         self.settings.set_lense_type('Wide Field')
 
     def get_grayscale_image(self) -> np.ndarray:
