@@ -157,13 +157,16 @@ class WriteRegister(Command):
 class ReadRegister(Command):
     commandId = 43
 
+
 class SetIlluminatorSegments(Command):
     commandId = 51
 
     def dataToBytes(self):
-        return struct.pack('!BB',
-                           self.data['segmentId'],
-                           self.data['enable'])
+        dataByte = 0
+        for i in range(4):
+            if self.data[f'segment{i}']:
+                dataByte |= 1 << i
+        return struct.pack('!B', dataByte)
 
 
 class GetTemperature(Command):
