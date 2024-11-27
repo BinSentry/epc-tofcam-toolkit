@@ -268,9 +268,13 @@ class TOFcam660_Device(Dev_Infos_Controller):
         chipInfos = self.interface.transceive(Command.create("readChipInformation")).data
         return chipInfos["chipid"], chipInfos["waferid"]
 
+    def get_fw_version_values(self) -> dict[str, int]:
+        """Returns the firmware version of the epc660 as a dictionary with keys of 'major' and 'minor'."""
+        return self.interface.transceive(Command.create("readFirmwareRelease")).data
+
     def get_fw_version(self) -> str:
         """Returns the firmware version of the epc660."""
-        fw_version = self.interface.transceive(Command.create("readFirmwareRelease")).data
+        fw_version = self.get_fw_version_values()
         return str(f"{fw_version['major']}.{fw_version['minor']}")
 
     def get_chip_temperature(self) -> float:
