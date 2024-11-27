@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+from enum import IntEnum
 from epc.tofCam_lib import TOFcam, TOF_Settings_Controller, Dev_Infos_Controller
 from epc.tofCam660.interface import Interface, UdpInterface
 from epc.tofCam660.memory import Memory
@@ -26,6 +27,15 @@ log = logging.getLogger('TOFcam660')
 class TOFcam660_Settings(TOF_Settings_Controller):
     """The TOFcam660_Settings class is used to control the settings of the TOFcam660.
     """
+
+    class IlluminatorSegment(IntEnum):
+        """Illuminator segment options."""
+        ALL = 0
+        SEGMENT_1 = 1
+        SEGMENT_2 = 2
+        SEGMENT_3 = 3
+        SEGMENT_4 = 4
+
     def __init__(self, tcp: Interface) -> None:
         super().__init__()
         self.roi = (0, 0, 320, 240)
@@ -218,6 +228,17 @@ class TOFcam660_Settings(TOF_Settings_Controller):
         """Set the lense type for the camera."""
         log.info(f"Setting lense type: {lense_type}")
         self.lense_projection = Lense_Projection.from_lense_calibration(lense_type)
+
+    def set_illuminator_segments(self, segment: IlluminatorSegment, enable: bool):
+        """Set the illuminator segments for the camera."""
+        log.info(f"Setting illuminator segments: {segment.name}, enable: {enable}")
+        set_illuminator_cmd = Command.create(
+            "setIlluminatorSegments",
+            {"segmentId": segment, "enable": enable}
+        )
+        log.info(f"Command data: {set_illuminator_cmd.dataToBytes()}")
+        log.info(f"Command: {set_illuminator_cmd.toBytes()}")
+        self.interface.transceive(set_illuminator_cmd)
 
 
 class TOFcam660_Device(Dev_Infos_Controller):

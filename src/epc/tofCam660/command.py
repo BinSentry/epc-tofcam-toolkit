@@ -157,6 +157,14 @@ class WriteRegister(Command):
 class ReadRegister(Command):
     commandId = 43
 
+class SetIlluminatorSegments(Command):
+    commandId = 51
+
+    def dataToBytes(self):
+        return struct.pack('!BB',
+                           self.data['segmentId'],
+                           self.data['enable'])
+
 
 class GetTemperature(Command):
     commandId = 74
@@ -235,4 +243,5 @@ commands = {'setRoi': SetRoi,
             'setGrayscaleIllumination': SetGrayscaleIllumination,
             'calibrateProduction': CalibrateProduction,
             'setCompensation' : SetCompensation,
+            'setIlluminatorSegments': SetIlluminatorSegments
             }
