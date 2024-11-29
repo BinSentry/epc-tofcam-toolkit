@@ -1,6 +1,5 @@
 import numpy as np
 import logging
-from enum import IntEnum
 from epc.tofCam_lib import TOFcam, TOF_Settings_Controller, Dev_Infos_Controller
 from epc.tofCam660.interface import Interface, UdpInterface
 from epc.tofCam660.memory import Memory
