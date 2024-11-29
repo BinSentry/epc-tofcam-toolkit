@@ -28,14 +28,6 @@ class TOFcam660_Settings(TOF_Settings_Controller):
     """The TOFcam660_Settings class is used to control the settings of the TOFcam660.
     """
 
-    class IlluminatorSegment(IntEnum):
-        """Illuminator segment options."""
-        ALL = 0
-        SEGMENT_1 = 1
-        SEGMENT_2 = 2
-        SEGMENT_3 = 3
-        SEGMENT_4 = 4
-
     def __init__(self, tcp: Interface) -> None:
         super().__init__()
         self.roi = (0, 0, 320, 240)
