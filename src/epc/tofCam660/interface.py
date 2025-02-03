@@ -75,10 +75,10 @@ class Interface:
         message = bytearray()
         while len(message) < size:
             if (size - len(message)) > 4096:
-                receive_length = 4096
+                part = self.socket.recv(4096)
             else:
-                receive_length = size - len(message)
-            part = self.socket.recv(receive_length)
+                part = self.socket.recv(size - len(message))
+
             if not part:
                 raise EOFError('Could not receive all expected data')
             message += part
