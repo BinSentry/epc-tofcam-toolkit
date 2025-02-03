@@ -78,7 +78,6 @@ class Interface:
                 part = self.socket.recv(4096)
             else:
                 part = self.socket.recv(size - len(message))
-
             if not part:
                 raise EOFError('Could not receive all expected data')
             message += part
