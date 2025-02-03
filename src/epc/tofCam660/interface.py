@@ -78,12 +78,7 @@ class Interface:
                 receive_length = 4096
             else:
                 receive_length = size - len(message)
-            try:
-                part = self.socket.recv(receive_length)
-            except socket.timeout:
-                part = None
-            except socket.error:
-                part = None
+            part = self.socket.recv(receive_length)
             if not part:
                 raise EOFError('Could not receive all expected data')
             message += part
