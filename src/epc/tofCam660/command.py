@@ -166,6 +166,8 @@ class SetIlluminatorSegments(Command):
         for i in range(4):
             if self.data[f'segment{i + 1}']:
                 dataByte |= 1 << i
+        if self.data.two_segment:
+            dataByte |= 16
         return struct.pack('!B', dataByte)
 
 
