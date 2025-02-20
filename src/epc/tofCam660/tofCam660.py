@@ -223,7 +223,7 @@ class TOFcam660_Settings(TOF_Settings_Controller):
         """Set the illuminator segments for the camera."""
         log.info(f"Setting illuminator segments: ("
                  f"1:{'ON' if segment_1_on else 'OFF'}, 2:{'ON' if segment_2_on else 'OFF'}, "
-                 f"3:{'ON' if segment_3_on else 'OFF'}, 4:{'ON' if segment_4_on else 'OFF'},"
+                 f"3:{'ON' if segment_3_on else 'OFF'}, 4:{'ON' if segment_4_on else 'OFF'}, "
 		 f"Two segment:{'ON' if two_segment_on else 'OFF'})")
         set_illuminator_cmd = Command.create(
             "setIlluminatorSegments",
