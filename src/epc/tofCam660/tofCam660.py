@@ -219,11 +219,12 @@ class TOFcam660_Settings(TOF_Settings_Controller):
         log.info(f"Setting lense type: {lense_type}")
         self.lense_projection = Lense_Projection.from_lense_calibration(lense_type)
 
-    def set_illuminator_segments(self, segment_1_on: bool = True, segment_2_on: bool = True, segment_3_on: bool = True, segment_4_on: bool = True):
+    def set_illuminator_segments(self, segment_1_on: bool = True, segment_2_on: bool = True, segment_3_on: bool = True, segment_4_on: bool = True, two_segment_on: bool = True):
         """Set the illuminator segments for the camera."""
         log.info(f"Setting illuminator segments: ("
                  f"1:{'ON' if segment_1_on else 'OFF'}, 2:{'ON' if segment_2_on else 'OFF'}, "
-                 f"3:{'ON' if segment_3_on else 'OFF'}, 4:{'ON' if segment_4_on else 'OFF'})")
+                 f"3:{'ON' if segment_3_on else 'OFF'}, 4:{'ON' if segment_4_on else 'OFF'},"
+		 f"Two segment:{'ON' if two_segment_on else 'OFF'})")
         set_illuminator_cmd = Command.create(
             "setIlluminatorSegments",
             {
@@ -231,6 +232,7 @@ class TOFcam660_Settings(TOF_Settings_Controller):
                 "segment2": segment_2_on,
                 "segment3": segment_3_on,
                 "segment4": segment_4_on,
+		"two_segment": two_segment_on,
             },
         )
         log.info(f"Command data: {set_illuminator_cmd.dataToBytes()}")
