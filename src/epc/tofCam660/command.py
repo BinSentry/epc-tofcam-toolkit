@@ -224,11 +224,6 @@ class SetGrayscaleIllumination(Command):
 class CalibrateProduction(Command):
     commandId = 31
 
-
-class GetCalibrationData(Command):
-    commandId = 53
-
-
 class SetCompensation(Command):
     commandId = 28
 
@@ -239,7 +234,8 @@ class SetCompensation(Command):
                             self.data['setAmbientLightCompensationEnabled'],
                             self.data['setGrayscaleCompensationEnabled'])
 
-
+class GetCalibrationData(Command):
+    commandId = 53
 
 commands = {'setRoi': SetRoi,
             'setIntTimes': SetIntTimes,
@@ -268,8 +264,8 @@ commands = {'setRoi': SetRoi,
             'setCameraMacAddress': SetCameraMacAddress,
             'setGrayscaleIllumination': SetGrayscaleIllumination,
             'calibrateProduction': CalibrateProduction,
-            'getCalibrationData': GetCalibrationData,
             'setCompensation' : SetCompensation,
+            'getCalibrationData': GetCalibrationData,
             'setIlluminatorSegments': SetIlluminatorSegments,
             'setFlexModFrequency': SetFlexModFrequency
             }
