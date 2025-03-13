@@ -175,7 +175,7 @@ class SetFlexModFrequency(Command):
     commandId = 52
 
     def dataToBytes(self):
-        return (self.data).to_bytes(4)
+        return (self.data).tobytes(4)
 
 
 class GetTemperature(Command):
