@@ -5,7 +5,7 @@ from sys import platform
 
 import numpy as np
 
-from epc.tofCam_gui.config import CrcCalc, CrcCalc_darwin, CrcCalc_linux
+# from epc.tofCam_gui.config import CrcCalc, CrcCalc_darwin, CrcCalc_linux
 
 
 class CrcMode(Enum):
@@ -29,19 +29,19 @@ class Crc:
             self.useLib = self.__loadLib()
 
     def __loadLib(self):
-        try:
-            if platform == 'linux':
-                self.lib = ctypes.cdll.LoadLibrary(str(CrcCalc_linux))
-            elif platform == 'win32':
-                self.lib = ctypes.windll.LoadLibrary(str(CrcCalc))
-            elif platform == 'darwin':
-                self.lib = ctypes.cdll.LoadLibrary(str(CrcCalc_darwin))
-            else:
+        # try:
+            # if platform == 'linux':
+                # self.lib = ctypes.cdll.LoadLibrary(str(CrcCalc_linux))
+            # elif platform == 'win32':
+                # self.lib = ctypes.windll.LoadLibrary(str(CrcCalc))
+            # elif platform == 'darwin':
+                # self.lib = ctypes.cdll.LoadLibrary(str(CrcCalc_darwin))
+            # else:
                 raise Exception('Platform not supported')
-            return True
-        except Exception as e:
-            print(e, 'no lib used')
-            return False
+            # return True
+        # except Exception as e:
+        #     print(e, 'no lib used')
+        #     return False
 
     def __calcCrc32_python(self, crc, data):
 

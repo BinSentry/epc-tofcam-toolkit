@@ -23,7 +23,7 @@ from epc.tofCam660.command import Command
 from epc.tofCam660.parser import GrayscaleParser, DistanceParser, DistanceAndAmplitudeParser, DcsParser
 from epc.tofCam660.mac_address_generator import total_random as generateRandomMacAddress
 from epc.tofCam660.epc660 import Epc660
-from epc.tofCam_lib.transformations_3d import Lense_Projection
+# from epc.tofCam_lib.transformations_3d import Lense_Projection
 
 colors = [(0, 0, 0),
           (255, 0, 0),
@@ -38,7 +38,7 @@ class Server:
         self.dut = dut
         self.registerAtExits()
         self.maxDepth = 16000 # pixel code limit for valid data 
-        self.lensProjection = Lense_Projection.from_lense_calibration('Wide Field')
+        # self.lensProjection = Lense_Projection.from_lense_calibration('Wide Field')
 
     def recordVideo(self, frames, folder):
         try:
@@ -326,4 +326,4 @@ class Server:
                                                                   }))
     
     def setLensType(self, lensType):
-        self.lensProjection = Lense_Projection.from_lense_calibration(lensType)
+        self.lensProjection = False #Lense_Projection.from_lense_calibration(lensType)
