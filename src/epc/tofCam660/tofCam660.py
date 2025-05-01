@@ -351,10 +351,6 @@ class TOFcam660(TOFcam):
         self.tcpInterface.close()
         self.udpInterface.close()
 
-
-    def __del__(self):
-        self.close()
-
     def __get_image_date(self, command: Command):
         self.tcpInterface.transceive(command)
         try:
