@@ -1,17 +1,8 @@
 from pathlib import Path
+from epc.tofCam_data.config import CrcCalc, NARROW_FIELD, STANDARD_FIELD, WIDE_FIELD
 
 EPC_LOGO = Path(__file__).parent / "icons" / "epc-logo.png"
-TOFCAM_LIB_BIN = Path(__file__).parent.parent / "tofCam_lib" / "bin"
 DATA = Path(__file__).parent.parent / "data"
-
-CrcCalc_linux = TOFCAM_LIB_BIN / "CrcCalc_linux.so"
-CrcCalc = TOFCAM_LIB_BIN / "CrcCalc.dll"
-CrcCalc_darwin = TOFCAM_LIB_BIN / "CrcCalc_darwin.a"
-
-WIDE_FIELD = DATA/"lense_calibration_wide_field.csv"
-NARROW_FIELD = DATA/"lense_calibration_narrow_field.csv"
-STANDARD_FIELD = DATA/"lense_calibration_standard_field.csv"
-
 
 if __name__ == "__main__":
     with open(WIDE_FIELD, "r") as f:

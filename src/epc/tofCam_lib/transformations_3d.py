@@ -1,6 +1,6 @@
 import numpy as np
 
-from epc.tofCam_gui.config import NARROW_FIELD, STANDARD_FIELD, WIDE_FIELD
+from epc.tofCam_data.config import NARROW_FIELD, STANDARD_FIELD, WIDE_FIELD
 
 lens_type_map = {
     'Wide Field': WIDE_FIELD,

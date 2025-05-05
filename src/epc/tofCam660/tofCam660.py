@@ -6,7 +6,7 @@ from epc.tofCam_lib import TOFcam, TOF_Settings_Controller, Dev_Infos_Controller
 from epc.tofCam660.interface import Interface, UdpInterface
 from epc.tofCam660.memory import Memory
 from epc.tofCam660.command import Command
-# from epc.tofCam_lib.transformations_3d import Lense_Projection
+from epc.tofCam_lib.transformations_3d import Lense_Projection
 from epc.tofCam660.parser import (
     GrayscaleParser,
     DistanceParser,
@@ -45,7 +45,7 @@ class TOFcam660_Settings(TOF_Settings_Controller):
         self.__int_time_grayscale = 50
         self.__int_time_low = 150
         self.__hdr_mode = 0
-        # self.lense_projection = Lense_Projection.from_lense_calibration('Wide Field')
+        self.lense_projection = Lense_Projection.from_lense_calibration('Wide Field')
         self.maxDepth = DEFAULT_MAX_DEPTH
         self.flexMod = False
         self.flexModFreq_MHz = 0.0
@@ -268,7 +268,7 @@ class TOFcam660_Settings(TOF_Settings_Controller):
     def set_lense_type(self, lense_type: int):
         """Set the lense type for the camera."""
         log.info(f"Setting lense type: {lense_type}")
-        # self.lense_projection = Lense_Projection.from_lense_calibration(lense_type)
+        self.lense_projection = Lense_Projection.from_lense_calibration(lense_type)
 
     def set_flex_mod_frequency(self, frequency):
         """Set the flexible modulation frequency"""
