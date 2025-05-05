@@ -79,7 +79,10 @@ class TOFcam:
     def __init__(self, settings_ctrl: TOF_Settings_Controller, info_ctrl: Dev_Infos_Controller) -> None:
         self.settings = settings_ctrl
         self.device = info_ctrl
-        atexit.register(self.__del__)
+        if hasattr(self, '__del__'):
+            atexit.register(self.__del__)
+        elif hasattr(self, 'close'):
+            atexit.register(self.close)
 
     def initialize(self):
         raise NotImplementedError(
