@@ -1,5 +1,5 @@
-import struct
 import ctypes
+import struct
 from enum import Enum
 from sys import platform
 import numpy as np
@@ -9,13 +9,15 @@ class CrcMode(Enum):
     CRC32_UINT8 = 1
     CRC32_UINT8_LIB = 2
     CRC32_STM32 = 3
+    CRC32_TOFCAM660 = 4
+
 
 class Crc:
     def __init__(self, mode: CrcMode = CrcMode.CRC32_UINT8,
-                   polynom=0x04C11DB7,
-                   initvalue=0xFFFFFFFF,
-                   xorout=0x00000000,
-                   revout=False):
+                 polynom=0x04C11DB7,
+                 initvalue=0xFFFFFFFF,
+                 xorout=0x00000000,
+                 revout=False):
         self.polynom = polynom
         self.initvalue = initvalue
         self.revout = revout
@@ -40,7 +42,6 @@ class Crc:
             print(e, 'no lib used')
             return False
 
-
     def __calcCrc32_python(self, crc, data):
 
         if (self.mode == CrcMode.CRC32_STM32):
@@ -57,7 +58,7 @@ class Crc:
             else:
                 crc = (crc << 1) & 0xFFFFFFFF
         return crc
-    
+
     def __calcCrc32Uin8_python(self, data: bytearray):
         crc = self.initvalue
         for i in range(len(data)):
@@ -71,6 +72,17 @@ class Crc:
 
         return self.lib.calcCrc32_32(carray, len(data), ctypes.c_uint32(self.polynom))
 
+    def __calcCrc32_TofCam660(self, data: bytearray):
+        crc = 0xFFFFFFFF
+        for byte in data:
+            crc ^= byte
+            for _ in range(8):
+                if crc & 1:
+                    crc = (crc >> 1) ^ self.polynom
+                else:
+                    crc >>= 1
+        return crc ^ 0xFFFFFFFF
+
     def calculate(self, data: bytearray) -> bytearray:
         crc = bytearray([])
         match self.mode:
@@ -80,10 +92,12 @@ class Crc:
                 crc = self.__calcCrc32Uint8_lib(bytearray(data))
             case CrcMode.CRC32_STM32:
                 crc = self.__calcCrc32Uin8_python(data)
+            case CrcMode.CRC32_TOFCAM660:
+                return self.__calcCrc32_TofCam660(data)
 
         if self.revout:
             crc = struct.unpack('>I', struct.pack('<I', crc))[0]
-        
+
         return crc
 
     def verify(self, data: bytearray, crc: bytearray):

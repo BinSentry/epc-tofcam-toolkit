@@ -3,8 +3,13 @@
 .venv37
 build
 doc/build
+scripts/data/*
+scripts/plots/*
+scripts/logs/*
 dist
 tmp
+**.png
+**.log
 **/__pycache__
 .pytest_cache
 **/*.egg-info
