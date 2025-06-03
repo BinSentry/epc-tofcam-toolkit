@@ -29,7 +29,7 @@ TOF_COS_DISTANCE_CHIP_TO_FRONT = 28.0
 TOF_COS_CALIBRATION_BOX_LENGTH = 330.0
 TOF_COS_TEMPERATURE_COEFFICIENT = 12.9 + 4.6
 
-CONST_OFFSET_CORRECTION = TOF_COS_CALIBRATION_BOX_LENGTH - TOF_COS_DISTANCE_CHIP_TO_FRONT - 7 / 8 * 12500
+CONST_OFFSET_CORRECTION = TOF_COS_CALIBRATION_BOX_LENGTH-TOF_COS_DISTANCE_CHIP_TO_FRONT - 7/8*12500
 
 log = logging.getLogger('TOFcam660')
 
@@ -37,7 +37,6 @@ log = logging.getLogger('TOFcam660')
 class TOFcam660_Settings(TOF_Settings_Controller):
     """The TOFcam660_Settings class is used to control the settings of the TOFcam660.
     """
-
     def __init__(self, tcp: Interface) -> None:
         super().__init__()
         self.roi = (0, 0, 320, 240)
@@ -52,12 +51,13 @@ class TOFcam660_Settings(TOF_Settings_Controller):
         self.flexModFreq_MHz = 0.0
         self.intTime_us = 0
         self.minAmplitude = 0
+        self.frame = None
         self.dllRegisterSettings = {
             0x71: 0x00,
             0x72: 0x00,
             0x73: 0x00,
             0x8b: 0x00,
-            0x93: 0x00}
+            0x93: 0x00        }
 
     def _clear_dll_settings(self):
         """Clear the DLL settings in the camera."""
@@ -222,9 +222,9 @@ class TOFcam660_Settings(TOF_Settings_Controller):
         log.info('Disabling filters')
         self.set_filters(False, False, 0, 0, 0, 0, False)
 
-    def set_flex_mod_freq(self, frequency_mhz: int | float, delay=0.1):
-        self._clear_dll_settings()  # Will be implemented in fw in the next release
-        cmd = Command.create("setFlexModFrequency", int(frequency_mhz * 1E6))
+    def set_flex_mod_freq(self, frequency_mhz: int|float, delay = 0.1):
+        self._clear_dll_settings() # Will be implemented in fw in the next release
+        cmd = Command.create("setFlexModFreq", int(frequency_mhz*1E6))
         log.info(f"Setting flex modulation frequency: {frequency_mhz} Hz")
         self.interface.transceive(cmd)
         time.sleep(delay)
@@ -265,17 +265,11 @@ class TOFcam660_Settings(TOF_Settings_Controller):
     def get_modulation_channels(self) -> list[int]:
         """Returns a list of available modulation channels."""
         return list(range(0, 15))
-
+    
     def set_lense_type(self, lense_type: int):
         """Set the lense type for the camera."""
         log.info(f"Setting lense type: {lense_type}")
         self.lense_projection = Lense_Projection.from_lense_calibration(lense_type)
-
-    def set_flex_mod_frequency(self, frequency):
-        """Set the flexible modulation frequency"""
-        log.info(f'Setting flexible modulation frequency to {frequency}')
-        flex_mod_command = Command.create("setFlexModFrequency", frequency)
-        self.interface.transceive(flex_mod_command)
 
     def set_illuminator_segments(self, segment_1_on: bool = True, segment_2_on: bool = True, segment_3_on: bool = True,
                                  segment_4_on: bool = True, segment_2_to_4: bool = True):
@@ -300,10 +294,10 @@ class TOFcam660_Settings(TOF_Settings_Controller):
         self.interface.transceive(set_illuminator_cmd)
 
 
+
 class TOFcam660_Device(Dev_Infos_Controller):
     """The TOFcam660_Device class is used to get and set device information's of the TOFcam660.
     """
-
     def __init__(self, tcp: Interface) -> None:
         super().__init__()
         self.interface = tcp
@@ -395,7 +389,6 @@ class TOFcam660(TOFcam):
     - settings: allows to control the settings of the camera.
     - device: allows to get device information's of the camera.
     """
-
     def __init__(
         self,
         ip_address=DEFAULT_IP_ADDRESS,
@@ -412,6 +405,13 @@ class TOFcam660(TOFcam):
         self._calibData = self.device.get_calibration_data()
         self._calibData24Mhz: dict = next((item for item in self._calibData if item['modulation(MHz)'] == 24), None)
         assert self._calibData24Mhz is not None, "Calibration data for 24 MHz not found"
+
+        # check if CRC enabled FW is running
+        fw_version = self.device.get_fw_version()
+        # TODO: probably don't want to ship this
+        if fw_version != '3.32' and fw_version != '3.33':
+            raise Exception("Incompatible FW version")
+        self.is_valid_crc = None
 
     def close(self):
         if self.tcpInterface.open:
@@ -466,7 +466,7 @@ class TOFcam660(TOFcam):
         # calculate amplitude
         diff0 = dcs[2] - dcs[0]
         diff1 = dcs[3] - dcs[1]
-        amplitude = np.sqrt(diff0 ** 2 + diff1 ** 2) / 2
+        amplitude = np.sqrt(diff0**2 + diff1**2) / 2
 
         # calculate phase
         phi = np.arctan2(diff1, diff0) + np.pi
@@ -477,19 +477,20 @@ class TOFcam660(TOFcam):
         distance = (phi * unambiguity_mm) / (2 * np.pi)
 
         # compensate offsets
-        temp_offset = (calibData['calibrated_temperature(mDeg)'] / 1000 - temp) * TOF_COS_TEMPERATURE_COEFFICIENT
+        temp_offset = (calibData['calibrated_temperature(mDeg)']/1000 - temp) * TOF_COS_TEMPERATURE_COEFFICIENT
         distance = distance + (6250 - calibData['atan_offset']) + temp_offset + CONST_OFFSET_CORRECTION
 
-        distance %= unambiguity_mm  # handle unambiguity steps
+        distance %= unambiguity_mm    # handle unambiguity steps
 
         return (distance, amplitude, dcs)
 
+
     def initialize(self):
         self.settings._store_dll_settings()
-        self.settings.set_modulation(12)
+        self.settings.set_modulation(3)
         self.settings.set_roi((0, 0, 320, 240))
         self.settings.set_hdr(2)
-        self.settings.set_modulation(frequency_mhz=12, channel=0)
+        self.settings.set_modulation(frequency_mhz=3, channel=0)
         self.settings.set_integration_hdr([25, 40, 400, 2000])
         self.settings.set_minimal_amplitude(100)
         self.settings.disable_filters()
@@ -507,8 +508,9 @@ class TOFcam660(TOFcam):
         parser = GrayscaleParser()
         get_gray_command = Command.create("getGrayscale", self.settings.captureMode)
         raw_data = self.__get_image_date(get_gray_command)
-        amplitude = parser.parse(raw_data).amplitude
-        return amplitude
+        self.frame = parser.parse(raw_data)
+        self.is_valid_crc = self.frame.crcValid
+        return self.frame.amplitude
 
     def get_distance_image(self) -> np.ndarray:
         """Get a distance image from the camera as a 2d numpy array. The distance is in mm."""
@@ -516,8 +518,9 @@ class TOFcam660(TOFcam):
             parser = DistanceParser()
             get_dist_cmd = Command.create("getDistance", self.settings.captureMode)
             raw_data = self.__get_image_date(get_dist_cmd)
-            distance = parser.parse(raw_data).distance
-            return distance
+            self.frame = parser.parse(raw_data)
+            self.is_valid_crc = self.frame.crcValid
+            return self.frame.distance
         else:
             dist, _, = self.get_distance_and_amplitude()
             return dist
@@ -529,7 +532,9 @@ class TOFcam660(TOFcam):
             "getDistanceAndAmplitude", self.settings.captureMode
         )
         raw_data = self.__get_image_date(get_dist_amp_cmd)
-        return parser.parse(raw_data)
+        self.frame = parser.parse(raw_data)
+        self.is_valid_crc = self.frame.crcValid
+        return self.frame
 
     def get_distance_and_amplitude(self) -> tuple[np.ndarray, np.ndarray]:
         """Get a distance and amplitude image from the camera as 2d numpy arrays. The distance is in mm."""
@@ -552,19 +557,24 @@ class TOFcam660(TOFcam):
         parser = DcsParser()
         get_dcs_cmd = Command.create("getDcs", self.settings.captureMode)
         raw_data = self.__get_image_date(get_dcs_cmd)
-        return parser.parse(raw_data).dcs
-
+        self.frame = parser.parse(raw_data)
+        self.is_valid_crc = self.frame.crcValid
+        return self.frame.dcs
+    
     def get_point_cloud(self) -> np.ndarray:
         """Returns a tuple holding point cloud from the camera as a 3xN numpy array and the corresponding amplitude values."""
         # capture depth image & corrections
         depth, amplitude = self.get_distance_and_amplitude()
         depth = np.rot90(depth, 3)
         amplitude = np.rot90(amplitude)
-        amplitude[amplitude > DEFAULT_MAX_AMP] = 0  # remove error codes
-        depth = depth.astype(np.float32)
+        amplitude[amplitude>DEFAULT_MAX_AMP] = 0 # remove error codes
+        depth  = depth.astype(np.float32)
         depth[depth >= self.settings.maxDepth] = np.nan
 
         # calculate point cloud from the depth image
         points = 1E-3 * self.settings.lense_projection.transformImage(np.flipud(np.fliplr(depth)))
         points = points.reshape(3, -1)
         return points, amplitude.flatten()
+
+    def get_crc_status(self):
+        return self.is_valid_crc
