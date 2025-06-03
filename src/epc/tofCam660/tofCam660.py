@@ -409,8 +409,9 @@ class TOFcam660(TOFcam):
         # check if CRC enabled FW is running
         fw_version = self.device.get_fw_version()
         # TODO: probably don't want to ship this
-        if fw_version != '3.32' and fw_version != '3.33':
-            raise Exception("Incompatible FW version")
+        self.can_check_crc = False
+        if fw_version == '3.32' or fw_version == '3.33':
+            self.can_check_crc = True
         self.is_valid_crc = None
 
     def close(self):
@@ -577,4 +578,6 @@ class TOFcam660(TOFcam):
         return points, amplitude.flatten()
 
     def get_crc_status(self):
-        return self.is_valid_crc
+        if self.can_check_crc:
+            return self.is_valid_crc
+        return True
