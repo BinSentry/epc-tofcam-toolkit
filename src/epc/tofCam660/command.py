@@ -223,6 +223,8 @@ class CalibrateProduction(Command):
 class GetCalibrationData(Command):
     commandId = 53
 
+class GetIntegrationTime(Command):
+    commandId = 56
 
 class SetCompensation(Command):
     commandId = 28
@@ -262,6 +264,7 @@ commands = {'setRoi': SetRoi,
             'setCameraMacAddress': SetCameraMacAddress,
             'setGrayscaleIllumination': SetGrayscaleIllumination,
             'calibrateProduction': CalibrateProduction,
+            'getIntegrationTime' : GetIntegrationTime,
             'getCalibrationData': GetCalibrationData,
             'setCompensation' : SetCompensation,
             'setIlluminatorSegments': SetIlluminatorSegments,
