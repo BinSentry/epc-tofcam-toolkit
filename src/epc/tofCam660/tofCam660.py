@@ -201,7 +201,7 @@ class TOFcam660(TOFcam):
         )
         raw_data = self.__get_image_date(get_dist_amp_cmd)
         self.frame = parser.parse(raw_data)
-        return self.frame.distance, self.frame.amplitude
+        return self.frame
 
     def get_distance_and_amplitude(self) -> tuple[np.ndarray, np.ndarray]:
         """Get a distance and amplitude image from the camera as 2d numpy arrays. The distance is in mm."""
