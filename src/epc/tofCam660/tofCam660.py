@@ -233,7 +233,8 @@ class TOFcam660_Settings(TOF_Settings_Controller):
 
     def set_modulation(self, frequency_mhz: float, channel=0):
         """Set the modulation frequency and channel for the TOFcam."""
-        self._restore_dll_settings()
+        if self.flexMod:
+            self._restore_dll_settings()
 
         freq_table = {
             12: 0,
@@ -437,7 +438,7 @@ class TOFcam660(TOFcam):
                                             modFreq_MHz: int,
                                             int_time_us,
                                             minAmp: int = 0) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        logging.info(f"get image with modulation frequency {modFreq_MHz} MHz and integration time {int_time_us} us")
+        # logging.info(f"get image with modulation frequency {modFreq_MHz} MHz and integration time {int_time_us} us")
         actIntTime = self.settings.intTime_us
 
         # prepare camera settings to calibrated temperature
@@ -502,7 +503,6 @@ class TOFcam660(TOFcam):
         self.settings.set_modulation(12)
         self.settings.set_roi((0, 0, 320, 240))
         self.settings.set_hdr(2)
-        self.settings.set_modulation(frequency_mhz=12, channel=0)
         self.settings.set_integration_hdr([25, 40, 400, 2000])
         self.settings.set_minimal_amplitude(100)
         self.settings.disable_filters()
