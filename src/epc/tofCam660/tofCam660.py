@@ -2,6 +2,7 @@ import numpy as np
 import logging
 import time
 import atexit
+import traceback
 from epc.tofCam_lib import TOFcam, TOF_Settings_Controller, Dev_Infos_Controller
 from epc.tofCam660.interface import Interface, UdpInterface
 from epc.tofCam660.memory import Memory
@@ -299,6 +300,10 @@ class TOFcam660_Settings(TOF_Settings_Controller):
         log.info(f"Command: {set_illuminator_cmd.toBytes()}")
         self.interface.transceive(set_illuminator_cmd)
 
+    def get_integration_time(self) -> list[dict]:
+        """Get the integration time(grayscale & 3D) from the camera."""
+        log.info(f"Reading integration time")
+        return self.interface.transceive(Command.create("getIntegrationTime")).data
 
 class TOFcam660_Device(Dev_Infos_Controller):
     """The TOFcam660_Device class is used to get and set device information's of the TOFcam660.
@@ -426,7 +431,7 @@ class TOFcam660(TOFcam):
                 frame_data, nBytes = self.udpInterface.receiveFrame()
                 break
             except Exception as e:
-                log.error(f"Failed to receive image data: {e}")
+                log.error(f"Failed to receive image data: {e} traceback: {traceback.format_exc()}")
                 continue
         if nBytes <= 0:
             raise RuntimeError("Failed to receive image data")
@@ -503,7 +508,16 @@ class TOFcam660(TOFcam):
         self.settings.set_roi((0, 0, 320, 240))
         self.settings.set_hdr(2)
         self.settings.set_modulation(frequency_mhz=12, channel=0)
-        self.settings.set_integration_hdr([25, 40, 400, 2000])
+        self.settings.set_integration_hdr([23, 40, 400, 2000])
+        integrationTimes = self.settings.get_integration_time()
+        if integrationTimes['grayscaleIntTime'] != 23:
+            log.warning(f"Grayscale integration time not set correctly, got {integrationTimes['grayscaleIntTime']} expected 23")
+        if integrationTimes['lowIntTime'] != 40:
+            log.warning(f"Low integration time not set correctly, got {integrationTimes['lowIntTime']} expected 40")
+        if integrationTimes['midIntTime'] != 400:
+            log.warning(f"Mid integration time not set correctly, got {integrationTimes['midIntTime']} expected 400")
+        if integrationTimes['highIntTime'] != 2000:
+            log.warning(f"High integration time not set correctly, got {integrationTimes['highIntTime']} expected 2000")
         self.settings.set_minimal_amplitude(100)
         self.settings.disable_filters()
         self.settings.set_compensations(setDrnuCompensation=True,
