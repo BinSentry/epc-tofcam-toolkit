@@ -114,6 +114,11 @@ class SetFilter(Command):
                            self.data['interferenceDetectionUseLastValue'],
                            self.data['interferenceDetectionLimit'])
 
+class SetFlexModFrequency(Command):
+    commandId = 52
+
+    def dataToBytes(self):
+        return struct.pack('!L', self.data)
 
 class SetModulationFrequency(Command):
     commandId = 23
@@ -159,6 +164,19 @@ class ReadRegister(Command):
 
     def dataToBytes(self):
         return struct.pack('!B', self.data['address'])
+
+
+class SetIlluminatorSegments(Command):
+    commandId = 51
+
+    def dataToBytes(self):
+        dataByte = 0
+        for i in range(4):
+            if self.data[f'segment{i + 1}']:
+                dataByte |= 1 << i
+        if 'segment_2_to_4' in self.data and self.data['segment_2_to_4']:
+            dataByte |= 16
+        return struct.pack('!B', dataByte)
 
 
 class GetTemperature(Command):
@@ -209,7 +227,36 @@ class SetCompensation(Command):
                             self.data['setAmbientLightCompensationEnabled'],
                             self.data['setGrayscaleCompensationEnabled'])
 
+class GetCalibrationData(Command):
+    commandId = 53
 
+class SetModClkJitter(Command):
+    commandId = 54
+    
+class GetIntegrationTime(Command):
+    commandId = 56
+
+class SetDataTransferProtocol(Command):
+    commandId = 57
+    def dataToBytes(self):
+        return struct.pack('!b', self.data['selectTCP'])
+    
+class GetDataTransferProtocol(Command):
+    commandId = 58
+
+class SetHwTriggerDataType(Command):
+    commandId = 59
+
+class SetRollingMode(Command):
+    commandId = 60
+
+class SetEyeSafety(Command):
+    commandId = 61
+
+    def dataToBytes(self):
+        return struct.pack('!BB',
+                           self.data['mode'],
+                           self.data['fps'])
 
 commands = {'setRoi': SetRoi,
             'setIntTimes': SetIntTimes,
@@ -224,6 +271,7 @@ commands = {'setRoi': SetRoi,
             'setMinAmplitude': SetMinAmplitude,
             'setFilter': SetFilter,
             'setModulationFrequency': SetModulationFrequency,
+            'setFlexModFreq': SetFlexModFrequency,
             'setBinning': SetBinning,
             'setHdr': SetHdr,
             'readChipInformation': ReadChipInformation,
@@ -238,4 +286,13 @@ commands = {'setRoi': SetRoi,
             'setGrayscaleIllumination': SetGrayscaleIllumination,
             'calibrateProduction': CalibrateProduction,
             'setCompensation' : SetCompensation,
+            'getCalibrationData' : GetCalibrationData,
+            'setIlluminatorSegments': SetIlluminatorSegments,
+            'getIntegrationTime' : GetIntegrationTime,
+            'setDataTransferProtocol' : SetDataTransferProtocol,
+            'getDataTransferProtocol' : GetDataTransferProtocol,
+            'setHwTriggerDataType': SetHwTriggerDataType,
+            'setRollingMode': SetRollingMode, 
+            'setEyeSafety': SetEyeSafety,
+            'setModClkJitter': SetModClkJitter,
             }
