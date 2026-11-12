@@ -47,6 +47,9 @@ class TOFcam660(TOFcam):
     - settings: allows to control the settings of the camera.
     - device: allows to get device information's of the camera.
     """
+    settings: "TOFcam660_Settings"
+    device: "TOFcam660_Device"
+
     def __init__(self, ip_address=DEFAULT_IP_ADDRESS):
         self.tcpInterface = Interface(ip_address, DEFAULT_TCP_PORT)
         self.rxInterface = UdpInterface(ip_address, DEFAULT_DATA_RX_PORT)
